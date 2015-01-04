@@ -10,13 +10,13 @@ import (
 )
 
 /*
-Parse unmarshals command-line arguments into data. It uses reflection to
+Parse unmarshals command-line arguments into strukt. It uses reflection to
 unmarshal arguments into various data types.
 
 Parse can unmarshal into three different types:
 	* struct
-	* map
-	* slice
+	* map[string]interface{}
+	* []interface{} (typically equivalent to os.Args[1:])
 
 The main use case is struct. Example:
 
