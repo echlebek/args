@@ -10,13 +10,14 @@ import (
 )
 
 /*
-Parse unmarshals command-line arguments into strukt. It uses reflection to
-unmarshal arguments into various data types.
+Parse parses command-line arguments.
 
-Parse can unmarshal into three different types:
+Parse can fill three different types with command-line data:
 	* struct
 	* map[string]interface{}
 	* []interface{} (typically equivalent to os.Args[1:])
+
+If another type is given, an error is returned.
 
 The main use case is struct. Example:
 
@@ -58,9 +59,32 @@ func Parse(strukt interface{}) error {
 	return parse(strukt, os.Args[1:])
 }
 
-// Usage writes the usage for a program to w, given a struct with members
-// and tags outlining its purpose. Description should be a short one-line
-// description of what the program does.
+/*Usage writes the usage for a user program to w.
+
+The strukt value should specify the defaults for the user program.
+
+Here is an example of an args spec that takes three arguments,
+with one argument having a default. The other two are missing
+if not supplied.
+
+	type Args struct {
+		A *int
+		B *string
+		C float32
+	}
+
+	func showUsage() {
+		defaults := Args{C: 0.2}
+		if err := args.Usage(os.Stderr, defaults); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+A non-pointer struct value will always have a default. If not specified,
+it will be the zero value for the type.
+
+Pointer values cannot have defaults.
+*/
 func Usage(w io.Writer, strukt interface{}) error {
 	val := reflect.ValueOf(strukt)
 	typ := val.Type()
@@ -84,7 +108,8 @@ func Usage(w io.Writer, strukt interface{}) error {
 	return nil
 }
 
-// Embed Positionals in your args struct to add positional argument support.
+// Embed Positionals in your args struct to specify positional arguments.
+// TODO
 type Positionals struct {
 	data []string
 }
